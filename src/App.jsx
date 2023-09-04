@@ -1,57 +1,62 @@
 import { useState } from 'react';
-import TodoItem from './components/TodoItem';
 import './App.css';
+import { createBrowserRouter, Link, RouterProvider } from 'react-router-dom';
 import TodoForm from './components/TodoForm';
+import HomePage from './routes/Home';
 
 function App() {
   const [todos, setTodos] = useState([]);
 
-  const allTodosDone = todos.reduce((prev, curr) => prev && curr.done, true);
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: (
+        <>
+          <HomePage
+            todos={todos}
+            onToggle={(index) => {
+              setTodos((todos) =>
+                todos.map((todo, i) => {
+                  if (index === i) {
+                    return {
+                      ...todo,
+                      done: !todo.done,
+                    };
+                  }
 
-  return (
-    <div>
-      <h1>My Todos</h1>
+                  return todo;
+                })
+              );
+            }}
+          />
 
-      <TodoForm
-        onAdd={(title) => {
-          setTodos((todos) => [
-            ...todos,
-            {
-              title: title,
-              done: false,
-            },
-          ]);
-        }}
-      />
+          <Link to="/new">Create new</Link>
+        </>
+      ),
+    },
+    {
+      path: '/new',
+      element: (
+        <>
+          <TodoForm
+            onAdd={(title) => {
+              setTodos((todos) => [
+                ...todos,
+                {
+                  title: title,
+                  done: false,
+                },
+              ]);
+            }}
+          />
 
-      {allTodosDone && <div>Everything&apos;s done! Good job 🤝</div>}
+          <Link to="/">Go back</Link>
+        </>
+      ),
+    },
+  ]);
 
-      <table>
-        <tbody>
-          {todos.map((todo, index) => (
-            <TodoItem
-              title={todo.title}
-              done={todo.done}
-              onToggle={() => {
-                setTodos((todos) =>
-                  todos.map((todo, i) => {
-                    if (index === i) {
-                      return {
-                        ...todo,
-                        done: !todo.done,
-                      };
-                    }
-
-                    return todo;
-                  })
-                );
-              }}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
